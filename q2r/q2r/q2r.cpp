@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-
+#include "q2r.h"
 struct imgInfo
 {
 	int idx;
@@ -128,14 +128,156 @@ void readResultFile(char* fileName, vector<imgInfo> &imgInfos)
 	}
 	cout << "end reading infos" << endl;
 }
+double p2pdistance(Vec2i pt1, Vec2i pt2)
+{
+	double distance;
+	distance = sqrt(powf((pt1[0] - pt2[0]), 2) + powf((pt1[1] - pt2[1]), 2));
+	return distance;
+}
+bool on_line(Vec4i line, Vec2i pt)
+{
+	double linedis_eps = 3; double pointdis_eps = 5;
+	Vec2i ref_point = { line[0], line[1] };
+	Vec2i pt2 = { -pt[1], pt[0] };
+	Vec2i ref_point_t = { line[1], -line[0] };
+	Vec2i vec = { line[2] - line[0], line[3] - line[1] };
+	double point2line = abs((pt2.dot(vec) + ref_point_t.dot(vec))) / sqrt(vec.dot(vec));
+	if (point2line < linedis_eps)
+		return true;
+	else
+		return false;
+}
+bool on_circle(Vec2i pt, Vec3f circle)
+{
+	// check if the point pt is on one of the circles,or joints of multiple circles, or nothing to do with circles
+	// joint_flag parameter: 0 means not on any circle, 1 means on a circle, 2 means on two circles and so on
+	int dis = 5;// this parameter is to be set to check on the distance tolerants within the distance between radius and distance of pt and circle center point
+	int count = 0;
 
+	Vec2f center = { circle[0], circle[1] };
+	double radius = circle[2];
+	double distance = p2pdistance(center, pt);
+	if (abs(distance - radius) <= dis)
+		return true;
+	else
+		return false;
+
+}
+void point_on_circle_line_check(vector<Vec2i> basicEndpoints, vector<Vec3f> circle_candidates, vector<circleX> &circles,
+	vector<Vec4i> line_candidates, vector<lineX> &lines, vector<pointX> &points)
+{
+	bool flag = true;
+	cout << basicEndpoints.size() << endl;
+	for (int i = 0; i < basicEndpoints.size(); ++i)
+	{
+		Vec2i bpoint = basicEndpoints[i];
+		pointX point;
+		point.p_idx = i; point.px = bpoint[0]; point.py = bpoint[1];
+		for (int j = 0; j < circle_candidates.size(); ++j)
+		{
+			Vec3f bcircle = circle_candidates[j];
+			circleX circle; circle.c_idx = j; circle.cx = bcircle[0]; circle.cy = bcircle[1]; circle.radius = bcircle[2];
+
+			//Vec2i center = { cvRound(bcircle[0]),cvRound(bcircle[1])};
+			if (flag)
+			{
+				circles.push_back(circle);
+				pointX centerPoint; centerPoint.cflag = true; centerPoint.p_idx = -1; centerPoint.px = cvRound(bcircle[0]); centerPoint.py = cvRound(bcircle[1]);
+				points.push_back(centerPoint);
+			}
+			if (on_circle(basicEndpoints[i], bcircle))
+			{
+				point.c_idx.push_back(j);
+			}
+
+		}
+		flag = false;
+		for (size_t k = 0; k < line_candidates.size(); ++k)
+		{
+			Vec4i bline = line_candidates[k];
+			lineX line; Vec2i bpoint1, bpoint2; bpoint1 = { bline[0], bline[1] }; bpoint2 = { bline[2], bline[3] };
+			line.l_idx = k; line.px1 = bline[0]; line.py1 = bline[1]; line.px2 = bline[2]; line.py2 = bline[3];
+			line.length = p2pdistance(bpoint1, bpoint2);
+			//lines.push_back(line);
+			point.cflag = false;
+			if (on_line(line_candidates[k], bpoint))
+			{
+				point.l_idx.push_back(k);
+			}
+		}
+		points.push_back(point);
+	}
+	for (size_t k = 0; k < line_candidates.size(); ++k)
+	{
+		Vec4i bline = line_candidates[k];
+		lineX line; Vec2i bpoint1, bpoint2; bpoint1 = { bline[0], bline[1] }; bpoint2 = { bline[2], bline[3] };
+		line.l_idx = k; line.px1 = bline[0]; line.py1 = bline[1]; line.px2 = bline[2]; line.py2 = bline[3];
+		line.length = p2pdistance(bpoint1, bpoint2);
+		lines.push_back(line);
+	}
+
+	for (int i = 0; i < points.size(); ++i)
+	{
+		pointX point = points[i];
+		cout << "point " << point.p_idx << " (" << point.px << ", " << point.py << ") " << " on circle ";
+		for (int j = 0; j < point.c_idx.size(); ++j)
+		{
+			cout << point.c_idx[j] << ", ";
+		}
+		cout << "on line ";
+		for (int k = 0; k < point.l_idx.size(); ++k)
+		{
+			cout << point.l_idx[k] << ", ";
+		}
+		cout << endl;
+	}
+}
+double angleOfLines(Vec4i line1, Vec4i line2)
+{
+	Vec2i line1V = { line1[2] - line1[0], line1[3] - line1[1] }; Vec2i line2V = { line2[2] - line2[0], line2[3] - line2[1] };
+	double theta1 = (line1V[0] == 0) ? CV_PI/2.0 : atan(line1V[1] / line1V[0]);
+	double theta2 = (line2V[0] == 0) ? CV_PI/2.0 : atan(line2V[1] / line2V[0]);
+	//cout << "theta1: " << theta1 / CV_PI * 180 << " theta2: " << theta2 / CV_PI * 180 << endl;
+	double angle = abs(theta1 - theta2) / CV_PI * 180;
+	return angle;
+}
+void line_perpendicular_check(vector<lineX> lines, vector<Vec2i> &pplinePairs)
+{
+	for (int i = 0; i < lines.size(); i++)
+	{
+		Vec4i line1 = { lines[i].px1, lines[i].py1, lines[i].px2, lines[i].py2 };
+		Vec2i line1V = { line1[2] - line1[0], line1[3] - line1[1] };
+		for (int j = i + 1; j < lines.size(); j++)
+		{
+			Vec4i line2 = { lines[j].px1, lines[j].py1, lines[j].px2, lines[j].py2 };
+			if (abs(angleOfLines(line1, line2) - 90) < 5)
+			{
+				Vec2i pplinePair = { i, j };
+				pplinePairs.push_back(pplinePair);
+			}
+				
+		}
+	}
+	cout << pplinePairs.size() << endl;
+	if (pplinePairs.size() != 0)
+	{
+		for (int k = 0; k < pplinePairs.size(); k++)
+		{
+			cout << "pp pair: " << pplinePairs[k][0] << " " << pplinePairs[k][1] << endl;
+		}
+	}
+	else
+	{
+		cout << "no pp line pairs exists" << endl;
+	}
+}
 int _tmain(int argc, _TCHAR* argv[])
 {
 	// first read the result file
 	char* fileName = "detectedResult.txt";
 	vector<imgInfo> imgInfos;
 	readResultFile(fileName, imgInfos);
-	imgInfo imgif = imgInfos[0];
+	imgInfo imgif = imgInfos[135];
 	vector<Vec2i> imgifPoints;
 
 	for (int i = 0; i < imgif.lineNum; i++)
@@ -154,6 +296,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	});
 	imgifPoints.erase(unique(imgifPoints.begin(), imgifPoints.end()), imgifPoints.end());
 	cout << imgifPoints.size() << endl;
+	vector<circleX> circles; vector<lineX> lines; vector<pointX> points;
+	cout << "imgif lines size " << imgif.lines.size() << endl;
+	point_on_circle_line_check(imgifPoints, imgif.circles, circles, imgif.lines, lines,points);
+	vector<Vec2i> linePairs;
+	line_perpendicular_check(lines, linePairs);
 	getchar();
 	return 0;
 }
