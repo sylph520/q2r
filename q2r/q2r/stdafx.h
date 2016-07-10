@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <opencv.hpp>
-
+#include <string>
 using namespace std;
 using namespace cv;
 

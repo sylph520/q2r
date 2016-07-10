@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include <iostream>
-#include <string>
+
 #include <fstream>
 #include "q2r.h"
 struct imgInfo
@@ -13,6 +13,11 @@ struct imgInfo
 	vector<Vec3f> circles;
 	int lineNum;
 	vector<Vec4i> lines;
+};
+struct angleInfo
+{
+	int l1, l2;
+	double angle;
 };
 void readResultFile(char* fileName, vector<imgInfo> &imgInfos)
 {
@@ -241,35 +246,101 @@ double angleOfLines(Vec4i line1, Vec4i line2)
 	double angle = abs(theta1 - theta2) / CV_PI * 180;
 	return angle;
 }
-void line_perpendicular_check(vector<lineX> lines, vector<Vec2i> &pplinePairs)
+void line_perpendicular_check(vector<lineX> lines, vector<Vec2i> &ppLinePairs, vector<Vec2i> &prLinePairs, vector<Vec2i> &leLinePairs,vector<Vec4i> &aeLinePairs)
 {
+	vector<angleInfo> angleSets;
 	for (int i = 0; i < lines.size(); i++)
 	{
 		Vec4i line1 = { lines[i].px1, lines[i].py1, lines[i].px2, lines[i].py2 };
+		Vec2i pt1 = { line1[0], line1[1] }; Vec2i pt2 = { line1[2], line1[3] };
+		double line1Len = p2pdistance(pt1, pt2);
 		Vec2i line1V = { line1[2] - line1[0], line1[3] - line1[1] };
 		for (int j = i + 1; j < lines.size(); j++)
 		{
 			Vec4i line2 = { lines[j].px1, lines[j].py1, lines[j].px2, lines[j].py2 };
+			Vec2i pt3 = { line2[0], line2[1] }; Vec2i pt4 = { line2[2], line2[3] };
+			double line2Len = p2pdistance(pt3, pt4);
+			cout << angleOfLines(line1, line2) << endl;
 			if (abs(angleOfLines(line1, line2) - 90) < 5)
 			{
-				Vec2i pplinePair = { i, j };
-				pplinePairs.push_back(pplinePair);
+				Vec2i ppLinePair = { i, j };
+				ppLinePairs.push_back(ppLinePair);
 			}
+			else if (abs(angleOfLines(line1, line2) < 5))
+			{
+				Vec2i prLinePair = { i, j };
+				prLinePairs.push_back(prLinePair);
+			}
+			
+			if (abs(line2Len - line1Len) < 5)
+			{
+				Vec2i leLinePair = { i, j };
+				leLinePairs.push_back(leLinePair);
+			}
+			angleInfo aInfo = { i, j, abs(angleOfLines(line1,line2)) };
+			angleSets.push_back(aInfo);
 				
 		}
 	}
-	cout << pplinePairs.size() << endl;
-	if (pplinePairs.size() != 0)
+	for (int k = 0; k < angleSets.size(); k++)
 	{
-		for (int k = 0; k < pplinePairs.size(); k++)
+		angleInfo ai1 = angleSets[k];
+		for (int l = k + 1; l < angleSets.size(); l++)
 		{
-			cout << "pp pair: " << pplinePairs[k][0] << " " << pplinePairs[k][1] << endl;
+			angleInfo ai2 = angleSets[l];
+			if (abs(ai1.angle - ai2.angle) < 3)
+			{
+				Vec4i arLinePair = { ai1.l1, ai1.l2, ai2.l1, ai2.l2 };
+				aeLinePairs.push_back(arLinePair);
+			}
+		}
+	}
+	if (ppLinePairs.size() != 0)
+	{
+		for (int k = 0; k < ppLinePairs.size(); k++)
+		{
+			cout << "pp pair: " << ppLinePairs[k][0] << " " << ppLinePairs[k][1] << endl;
 		}
 	}
 	else
 	{
 		cout << "no pp line pairs exists" << endl;
 	}
+	if (prLinePairs.size() != 0)
+	{
+		for (int k = 0; k < prLinePairs.size(); k++)
+		{
+			cout << "pr pair: " << prLinePairs[k][0] << " " << prLinePairs[k][1] << endl;
+		}
+	}
+	else
+	{
+		cout << "no pr line pairs exists" << endl;
+	}
+	if (leLinePairs.size() != 0)
+	{
+		for (int k = 0; k < leLinePairs.size(); k++)
+		{
+			cout << "le pair: " << leLinePairs[k][0] << " " << leLinePairs[k][1] << endl;
+		}
+	}
+	else
+	{
+		cout << "no le line pairs exists" << endl;
+	}
+	if (aeLinePairs.size() != 0)
+	{
+		for (int k = 0; k < aeLinePairs.size(); k++)
+		{
+			cout << "ae pair: " << aeLinePairs[k][0] << " " << aeLinePairs[k][1] << " "
+				<<aeLinePairs[k][2]<<" "<<aeLinePairs[k][3]<< endl;
+		}
+	}
+	else
+	{
+		cout << "no le line pairs exists" << endl;
+	}
+	
 }
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -299,8 +370,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	vector<circleX> circles; vector<lineX> lines; vector<pointX> points;
 	cout << "imgif lines size " << imgif.lines.size() << endl;
 	point_on_circle_line_check(imgifPoints, imgif.circles, circles, imgif.lines, lines,points);
-	vector<Vec2i> linePairs;
-	line_perpendicular_check(lines, linePairs);
+	vector<Vec2i> ppLinePairs, prLinePairs, leLinePairs; vector<Vec4i> aeLinePairs;
+	line_perpendicular_check(lines, ppLinePairs, prLinePairs, leLinePairs, aeLinePairs);
 	getchar();
 	return 0;
 }
