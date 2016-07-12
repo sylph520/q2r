@@ -12,6 +12,7 @@ struct pointX
 struct lineX
 {
 	int l_idx; vector<int> p_idxs;
+	int p_idx1, p_idx2;
 	int px1, py1, px2, py2;
 	double length;
 	string label = "";

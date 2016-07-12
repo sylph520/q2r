@@ -41,6 +41,62 @@ string PtOnLine2String(lineX line, string pt[2])
 	ret += line.w[2]; ret += eq; ret += "0";
 	return ret;
 }
+string parallelLine2String(Vec2i prLinePair, vector<lineX> lines, vector<pointX> points)
+{
+	lineX line1, line2;
+	line1 = lines[prLinePair[0]]; line2 = lines[prLinePair[1]];
+	pointX pt1 = points[line1.p_idx1]; pointX pt2 = points[line1.p_idx2]; pointX pt3 = points[line2.p_idx1]; pointX pt4 = points[line2.p_idx2];
+	string ret= ""; 
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string mul = " * "; string eq = " = ";
+	ret += leftpa; ret += pt4.p[1]; ret += minus; ret += pt3.p[1]; ret += rightpa; ret += mul;
+	ret += leftpa; ret += pt2.p[0]; ret += minus; ret += pt1.p[0]; ret += rightpa; ret += minus;
+	ret += leftpa; ret += pt4.p[0]; ret += minus; ret += pt3.p[0]; ret += rightpa; ret += mul;
+	ret += leftpa; ret += pt2.p[1]; ret += minus; ret += pt1.p[1]; ret += rightpa; ret += eq;
+	ret += "0";
+	return ret;
+}
+string perpendicularLine2String(Vec2i ppLinePair, vector<lineX> lines, vector<pointX> points)
+{
+	lineX line1, line2;
+	line1 = lines[ppLinePair[0]]; line2 = lines[ppLinePair[1]];
+	pointX pt1 = points[line1.p_idx1]; pointX pt2 = points[line1.p_idx2]; pointX pt3 = points[line2.p_idx1]; pointX pt4 = points[line2.p_idx2];
+	string ret = "";
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string mul = " * "; string eq = " = ";
+	ret += leftpa; ret += pt4.p[1]; ret += minus; ret += pt3.p[1]; ret += rightpa; ret += mul;
+	ret += leftpa; ret += pt2.p[1]; ret += minus; ret += pt1.p[1]; ret += rightpa; ret += minus;
+	ret += leftpa; ret += pt4.p[0]; ret += minus; ret += pt3.p[0]; ret += rightpa; ret += mul;
+	ret += leftpa; ret += pt2.p[0]; ret += minus; ret += pt1.p[0]; ret += rightpa; ret += eq;
+	ret += "0";
+	return ret;
+}
+string leneqLine2String(Vec2i leLinePair, vector<lineX> lines, vector<pointX> points)
+{
+	lineX line1, line2;
+	line1 = lines[leLinePair[0]]; line2 = lines[leLinePair[1]];
+	pointX pt1 = points[line1.p_idx1]; pointX pt2 = points[line1.p_idx2]; pointX pt3 = points[line2.p_idx1]; pointX pt4 = points[line2.p_idx2];
+	string ret = "";
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string square = "^2"; string eq = " = ";
+	ret += leftpa; ret += pt2.p[0]; ret += minus; ret += pt1.p[0]; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += pt2.p[1]; ret += minus; ret += pt1.p[1]; ret += rightpa; ret += square; ret += eq;
+	ret += leftpa; ret += pt4.p[0]; ret += minus; ret += pt3.p[0]; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += pt4.p[1]; ret += minus; ret += pt3.p[1]; ret += rightpa; ret += square;
+	return ret;
+}
+string angeqLine2String(Vec4i aeLinePair, vector<lineX> lines, vector<pointX> points)
+{
+	lineX line1, line2,line3, line4;
+	line1 = lines[aeLinePair[0]]; line2 = lines[aeLinePair[1]]; line3 = lines[aeLinePair[2]]; line4 = lines[aeLinePair[3]];
+	pointX pt1 = points[line1.p_idx1]; pointX pt2 = points[line1.p_idx2]; pointX pt3 = points[line2.p_idx1]; pointX pt4 = points[line2.p_idx2];
+	pointX pt5 = points[line3.p_idx1]; pointX pt6 = points[line3.p_idx2]; pointX pt7 = points[line4.p_idx1]; pointX pt8 = points[line4.p_idx2];
+	string ret = "";
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string square = "^2"; string eq = " = ";
+	char div = '/';
+	ret += "theta1";
+	ret += 
+	ret += eq;
+	ret += "theta2";
+
+}
 void readResultFile(char* fileName, vector<imgInfo> &imgInfos)
 {
 	ifstream file(fileName, ios::in || ios::binary);
@@ -232,7 +288,16 @@ void point_on_circle_line_check(vector<Vec2i> basicEndpoints, vector<Vec3f> circ
 			{
 				line.p_idxs.push_back(l);
 			}
+			if (basicEndpoints[l] == bpoint1)
+			{
+				line.p_idx1 = l;
+			}
+			else if (basicEndpoints[l] == bpoint2)
+			{
+				line.p_idx2 = l;
+			}
 		}
+
 		lines.push_back(line);
 	}
 	for (size_t k = 0; k < circle_candidates.size(); ++k)
@@ -290,9 +355,9 @@ void point_on_circle_line_check(vector<Vec2i> basicEndpoints, vector<Vec3f> circ
 double angleOfLines(Vec4i line1, Vec4i line2)
 {
 	Vec2i line1V = { line1[2] - line1[0], line1[3] - line1[1] }; Vec2i line2V = { line2[2] - line2[0], line2[3] - line2[1] };
-	double theta1 = (line1V[0] == 0) ? CV_PI/2.0 : atan(line1V[1] / line1V[0]);
-	double theta2 = (line2V[0] == 0) ? CV_PI/2.0 : atan(line2V[1] / line2V[0]);
-	//cout << "theta1: " << theta1 / CV_PI * 180 << " theta2: " << theta2 / CV_PI * 180 << endl;
+	double theta1 = (line1V[0] <= 3) ? CV_PI/2.0 : atan2(line1V[1] , line1V[0]);
+	double theta2 = (line2V[0] <= 3) ? CV_PI/2.0 : atan2(line2V[1] , line2V[0]);
+	cout << "theta1: " << theta1 / CV_PI * 180 << " theta2: " << theta2 / CV_PI * 180 << endl;
 	double angle = abs(theta1 - theta2) / CV_PI * 180;
 	return angle;
 }
@@ -310,13 +375,14 @@ void line_perpendicular_check(vector<lineX> lines, vector<Vec2i> &ppLinePairs, v
 			Vec4i line2 = { lines[j].px1, lines[j].py1, lines[j].px2, lines[j].py2 };
 			Vec2i pt3 = { line2[0], line2[1] }; Vec2i pt4 = { line2[2], line2[3] };
 			double line2Len = p2pdistance(pt3, pt4);
-			//cout << angleOfLines(line1, line2) << endl;
-			if (abs(angleOfLines(line1, line2) - 90) < 5)
+			double aol = abs(angleOfLines(line1, line2));
+			cout << i<<", "<<j<<"     "<<aol << endl;
+			if (abs(aol - 90) < 5)
 			{
 				Vec2i ppLinePair = { i, j };
 				ppLinePairs.push_back(ppLinePair);
 			}
-			else if (abs(angleOfLines(line1, line2) < 5))
+			else if (aol < 5)
 			{
 				Vec2i prLinePair = { i, j };
 				prLinePairs.push_back(prLinePair);
@@ -327,7 +393,7 @@ void line_perpendicular_check(vector<lineX> lines, vector<Vec2i> &ppLinePairs, v
 				Vec2i leLinePair = { i, j };
 				leLinePairs.push_back(leLinePair);
 			}
-			angleInfo aInfo = { i, j, abs(angleOfLines(line1,line2)) };
+			angleInfo aInfo = { i, j, aol };
 			angleSets.push_back(aInfo);
 				
 		}
@@ -395,7 +461,7 @@ void line_perpendicular_check(vector<lineX> lines, vector<Vec2i> &ppLinePairs, v
 void equationGenerate(vector<circleX> &circles,vector<lineX> &lines, vector<pointX> &points,
 	vector<Vec2i> ppLinePairs, vector<Vec2i> prLinePairs, vector<Vec2i> leLinePairs, vector<Vec4i> aeLinePairs)
 {
-	vector<string> circleEquations, LineEquations;
+	vector<string> circleEquations, LineEquations,angleEquations;
 	/* first 
 	arrange all the points axis variables with a character, and set general circle and line equations
 	*/
@@ -447,8 +513,38 @@ void equationGenerate(vector<circleX> &circles,vector<lineX> &lines, vector<poin
 	/* second 
 	begin relation representation
 	*/
-	
-	
+	// parallel relation
+	for (int i = 0; i < prLinePairs.size(); ++i)
+	{
+		Vec2i prLinePair = prLinePairs[i];
+		string e = parallelLine2String(prLinePair, lines, points);
+		cout << e << endl;
+		LineEquations.push_back(e);
+	}
+	// perpendicular relation
+	for (int j = 0; j < ppLinePairs.size(); ++j)
+	{
+		Vec2i ppLinePair = ppLinePairs[j];
+		string e = perpendicularLine2String(ppLinePair, lines, points);
+		cout << e << endl;
+		LineEquations.push_back(e);
+	}
+	// line length relation
+	for (int m = 0; m < leLinePairs.size(); ++m)
+	{
+		Vec2i leLinePair = leLinePairs[m];
+		string e = leneqLine2String(leLinePair, lines, points);
+		cout << e << endl;
+		LineEquations.push_back(e);
+	}
+	// angle relation
+	for (int n = 0; n < aeLinePairs.size(); ++n)
+	{
+		Vec4i aeLinePair = aeLinePairs[n];
+		string e = angeqLine2String(aeLinePair, lines, points);
+		cout << e << endl;
+		angleEquations.push_back(e);
+	}
 
 
 }
