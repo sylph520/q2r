@@ -19,6 +19,28 @@ struct angleInfo
 	int l1, l2;
 	double angle;
 };
+string PtOnCircle2String(circleX circle, string pt[2])
+{
+	string ret = ""; 
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string square = "^2"; string eq = " = ";
+	ret += leftpa; ret += pt[0]; ret += minus; ret += (circle.c[0]); ret += rightpa; ret += square;
+	ret += plus;
+	ret += leftpa; ret += pt[1]; ret += minus; ret += (circle.c[1]); ret += rightpa; ret += square;
+	ret += eq;
+	ret += to_string(circle.radius); ret += square;
+	//ret = '(' + pt[0] + " - " + to_string(circle.c[0]) + ')' + '^' + '2' + " + "+
+	//	'(' + pt[1] + " - " + to_string(circle.c[1]) + ')' + '^' + '2' + " = " + to_string(circle.radius*circle.radius);
+	return ret;
+}
+string PtOnLine2String(lineX line, string pt[2])
+{
+	string ret;
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string mul = " * "; string eq = " = ";
+	ret = line.w[0]; ret += mul; ret += pt[0]; ret += plus;
+	ret += line.w[1]; ret += mul; ret += pt[1]; ret += plus;
+	ret += line.w[2]; ret += eq; ret += "0";
+	return ret;
+}
 void readResultFile(char* fileName, vector<imgInfo> &imgInfos)
 {
 	ifstream file(fileName, ios::in || ios::binary);
@@ -128,7 +150,7 @@ void readResultFile(char* fileName, vector<imgInfo> &imgInfos)
 
 		}
 		imgInfos.push_back(info);
-		cout << info.idx << endl;
+		//cout << info.idx << endl;
 
 	}
 	cout << "end reading infos" << endl;
@@ -171,8 +193,7 @@ bool on_circle(Vec2i pt, Vec3f circle)
 void point_on_circle_line_check(vector<Vec2i> basicEndpoints, vector<Vec3f> circle_candidates, vector<circleX> &circles,
 	vector<Vec4i> line_candidates, vector<lineX> &lines, vector<pointX> &points)
 {
-	bool flag = true;
-	cout << basicEndpoints.size() << endl;
+	//cout << basicEndpoints.size() << endl;
 	for (int i = 0; i < basicEndpoints.size(); ++i)
 	{
 		Vec2i bpoint = basicEndpoints[i];
@@ -181,29 +202,15 @@ void point_on_circle_line_check(vector<Vec2i> basicEndpoints, vector<Vec3f> circ
 		for (int j = 0; j < circle_candidates.size(); ++j)
 		{
 			Vec3f bcircle = circle_candidates[j];
-			circleX circle; circle.c_idx = j; circle.cx = bcircle[0]; circle.cy = bcircle[1]; circle.radius = bcircle[2];
-
-			//Vec2i center = { cvRound(bcircle[0]),cvRound(bcircle[1])};
-			if (flag)
-			{
-				circles.push_back(circle);
-				pointX centerPoint; centerPoint.cflag = true; centerPoint.p_idx = -1; centerPoint.px = cvRound(bcircle[0]); centerPoint.py = cvRound(bcircle[1]);
-				points.push_back(centerPoint);
-			}
 			if (on_circle(basicEndpoints[i], bcircle))
 			{
 				point.c_idx.push_back(j);
 			}
 
 		}
-		flag = false;
 		for (size_t k = 0; k < line_candidates.size(); ++k)
 		{
 			Vec4i bline = line_candidates[k];
-			lineX line; Vec2i bpoint1, bpoint2; bpoint1 = { bline[0], bline[1] }; bpoint2 = { bline[2], bline[3] };
-			line.l_idx = k; line.px1 = bline[0]; line.py1 = bline[1]; line.px2 = bline[2]; line.py2 = bline[3];
-			line.length = p2pdistance(bpoint1, bpoint2);
-			//lines.push_back(line);
 			point.cflag = false;
 			if (on_line(line_candidates[k], bpoint))
 			{
@@ -218,7 +225,30 @@ void point_on_circle_line_check(vector<Vec2i> basicEndpoints, vector<Vec3f> circ
 		lineX line; Vec2i bpoint1, bpoint2; bpoint1 = { bline[0], bline[1] }; bpoint2 = { bline[2], bline[3] };
 		line.l_idx = k; line.px1 = bline[0]; line.py1 = bline[1]; line.px2 = bline[2]; line.py2 = bline[3];
 		line.length = p2pdistance(bpoint1, bpoint2);
+		for (size_t l = 0; l < basicEndpoints.size(); ++l)
+		{
+			Vec2i bpoint = basicEndpoints[l];
+			if (on_line(line_candidates[k], bpoint))
+			{
+				line.p_idxs.push_back(l);
+			}
+		}
 		lines.push_back(line);
+	}
+	for (size_t k = 0; k < circle_candidates.size(); ++k)
+	{
+		Vec3f bcircle = circle_candidates[k];
+		circleX circle; circle.c_idx = k; circle.cx = bcircle[0]; circle.cy = bcircle[1]; circle.radius = bcircle[2];
+		Vec2i center = { cvRound(bcircle[0]), cvRound(bcircle[1]) };
+		for (size_t l = 0; l < basicEndpoints.size(); ++l)
+		{
+			Vec2i bpoint = basicEndpoints[l];
+			if (on_circle(basicEndpoints[l], bcircle))
+			{
+				circle.p_idxs.push_back(l);
+			}
+		}
+		circles.push_back(circle);
 	}
 
 	for (int i = 0; i < points.size(); ++i)
@@ -235,6 +265,26 @@ void point_on_circle_line_check(vector<Vec2i> basicEndpoints, vector<Vec3f> circ
 			cout << point.l_idx[k] << ", ";
 		}
 		cout << endl;
+	}
+	for (int m = 0; m < lines.size(); ++m)
+	{
+		lineX line = lines[m];
+		cout << "point ";
+		for (int n = 0; n < line.p_idxs.size(); ++n)
+		{
+			cout << line.p_idxs[n] << ", ";
+		}
+		cout << " is on line " << line.l_idx << endl;
+	}
+	for (int m = 0; m < circles.size(); ++m)
+	{
+		circleX circle = circles[m];
+		cout << "point ";
+		for (int n = 0; n < circle.p_idxs.size(); ++n)
+		{
+			cout << circle.p_idxs[n] << ", ";
+		}
+		cout << " is on circle " << circle.c_idx << endl;
 	}
 }
 double angleOfLines(Vec4i line1, Vec4i line2)
@@ -260,7 +310,7 @@ void line_perpendicular_check(vector<lineX> lines, vector<Vec2i> &ppLinePairs, v
 			Vec4i line2 = { lines[j].px1, lines[j].py1, lines[j].px2, lines[j].py2 };
 			Vec2i pt3 = { line2[0], line2[1] }; Vec2i pt4 = { line2[2], line2[3] };
 			double line2Len = p2pdistance(pt3, pt4);
-			cout << angleOfLines(line1, line2) << endl;
+			//cout << angleOfLines(line1, line2) << endl;
 			if (abs(angleOfLines(line1, line2) - 90) < 5)
 			{
 				Vec2i ppLinePair = { i, j };
@@ -295,62 +345,116 @@ void line_perpendicular_check(vector<lineX> lines, vector<Vec2i> &ppLinePairs, v
 			}
 		}
 	}
-	if (ppLinePairs.size() != 0)
-	{
-		for (int k = 0; k < ppLinePairs.size(); k++)
-		{
-			cout << "pp pair: " << ppLinePairs[k][0] << " " << ppLinePairs[k][1] << endl;
-		}
-	}
-	else
-	{
-		cout << "no pp line pairs exists" << endl;
-	}
-	if (prLinePairs.size() != 0)
-	{
-		for (int k = 0; k < prLinePairs.size(); k++)
-		{
-			cout << "pr pair: " << prLinePairs[k][0] << " " << prLinePairs[k][1] << endl;
-		}
-	}
-	else
-	{
-		cout << "no pr line pairs exists" << endl;
-	}
-	if (leLinePairs.size() != 0)
-	{
-		for (int k = 0; k < leLinePairs.size(); k++)
-		{
-			cout << "le pair: " << leLinePairs[k][0] << " " << leLinePairs[k][1] << endl;
-		}
-	}
-	else
-	{
-		cout << "no le line pairs exists" << endl;
-	}
-	if (aeLinePairs.size() != 0)
-	{
-		for (int k = 0; k < aeLinePairs.size(); k++)
-		{
-			cout << "ae pair: " << aeLinePairs[k][0] << " " << aeLinePairs[k][1] << " "
-				<<aeLinePairs[k][2]<<" "<<aeLinePairs[k][3]<< endl;
-		}
-	}
-	else
-	{
-		cout << "no le line pairs exists" << endl;
-	}
+	//if (ppLinePairs.size() != 0)
+	//{
+	//	for (int k = 0; k < ppLinePairs.size(); k++)
+	//	{
+	//		cout << "pp pair: " << ppLinePairs[k][0] << " " << ppLinePairs[k][1] << endl;
+	//	}
+	//}
+	//else
+	//{
+	//	cout << "no pp line pairs exists" << endl;
+	//}
+	//if (prLinePairs.size() != 0)
+	//{
+	//	for (int k = 0; k < prLinePairs.size(); k++)
+	//	{
+	//		cout << "pr pair: " << prLinePairs[k][0] << " " << prLinePairs[k][1] << endl;
+	//	}
+	//}
+	//else
+	//{
+	//	cout << "no pr line pairs exists" << endl;
+	//}
+	//if (leLinePairs.size() != 0)
+	//{
+	//	for (int k = 0; k < leLinePairs.size(); k++)
+	//	{
+	//		cout << "le pair: " << leLinePairs[k][0] << " " << leLinePairs[k][1] << endl;
+	//	}
+	//}
+	//else
+	//{
+	//	cout << "no le line pairs exists" << endl;
+	//}
+	//if (aeLinePairs.size() != 0)
+	//{
+	//	for (int k = 0; k < aeLinePairs.size(); k++)
+	//	{
+	//		cout << "ae pair: " << aeLinePairs[k][0] << " " << aeLinePairs[k][1] << " "
+	//			<<aeLinePairs[k][2]<<" "<<aeLinePairs[k][3]<< endl;
+	//	}
+	//}
+	//else
+	//{
+	//	cout << "no le line pairs exists" << endl;
+	//}
 	
 }
-int _tmain(int argc, _TCHAR* argv[])
+void equationGenerate(vector<circleX> &circles,vector<lineX> &lines, vector<pointX> &points,
+	vector<Vec2i> ppLinePairs, vector<Vec2i> prLinePairs, vector<Vec2i> leLinePairs, vector<Vec4i> aeLinePairs)
 {
-	// first read the result file
-	char* fileName = "detectedResult.txt";
-	vector<imgInfo> imgInfos;
-	readResultFile(fileName, imgInfos);
-	imgInfo imgif = imgInfos[135];
-	vector<Vec2i> imgifPoints;
+	vector<string> circleEquations, LineEquations;
+	/* first 
+	arrange all the points axis variables with a character, and set general circle and line equations
+	*/
+	// first handle the circle centers, and set the first cirlce center to be the original point (0, 0)
+	for (int j = 0; j < points.size(); j++)
+	{
+		char suffix = j + '0';
+		points[j].p[0] = 'p_x'; points[j].p[0] += suffix;
+		points[j].p[1] = 'p_y'; points[j].p[1] += suffix;
+	}
+	for (int i = 0; i < circles.size(); i++)
+	{
 
+		char suffix = i + '0';
+		circles[i].c[0] = "c_x"; circles[i].c[0] += suffix;
+		circles[i].c[1] = "c_y"; circles[i].c[1] += suffix;
+		for (int j = 0; j < circles[i].p_idxs.size(); ++j)
+		{
+			string e;
+			int p_idx = circles[i].p_idxs[j];
+			pointX pt = points[p_idx];
+			e = PtOnCircle2String(circles[i], pt.p);
+			cout << e << endl;
+			circleEquations.push_back(e);
+		}
+	}
+	for (int k = 0; k < lines.size(); k++)
+	{
+		//lineX line = lines[k];
+		char suffix = k + '0';
+		lines[k].w[0] = 'A'; lines[k].w[0] += suffix;
+		lines[k].w[1] = 'B'; lines[k].w[1] += suffix;
+		lines[k].w[2] = 'C'; lines[k].w[2] += suffix;
+
+		for (int l = 0; l < lines[k].p_idxs.size(); ++l)
+		{
+			string e;
+			int p_idx = lines[k].p_idxs[l];
+			pointX pt = points[p_idx]; 
+			e = PtOnLine2String(lines[k],pt.p);
+			cout << e << endl;
+			LineEquations.push_back(e);
+		}
+
+	}
+	// then handle the regular points axis info arrangement
+
+
+	/* second 
+	begin relation representation
+	*/
+	
+	
+
+
+}
+
+void handleImgInfo(imgInfo imgif, vector<Vec2i>& imgifPoints, vector<circleX> &circles, vector<lineX>& lines, vector<pointX>& points)
+{
 	for (int i = 0; i < imgif.lineNum; i++)
 	{
 		Vec2i pt1, pt2;
@@ -366,12 +470,24 @@ int _tmain(int argc, _TCHAR* argv[])
 			return (a[1] < b[1]);
 	});
 	imgifPoints.erase(unique(imgifPoints.begin(), imgifPoints.end()), imgifPoints.end());
-	cout << imgifPoints.size() << endl;
+	//cout << imgifPoints.size() << endl;
+	//cout << "imgif lines size " << imgif.lines.size() << endl;
+	point_on_circle_line_check(imgifPoints, imgif.circles, circles, imgif.lines, lines, points);
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	// first read the result file
+	char* fileName = "detectedResult.txt";
+	vector<imgInfo> imgInfos;
+	readResultFile(fileName, imgInfos);
+	imgInfo imgif = imgInfos[0];
+	vector<Vec2i> imgifPoints;
 	vector<circleX> circles; vector<lineX> lines; vector<pointX> points;
-	cout << "imgif lines size " << imgif.lines.size() << endl;
-	point_on_circle_line_check(imgifPoints, imgif.circles, circles, imgif.lines, lines,points);
+	handleImgInfo(imgif, imgifPoints, circles, lines, points);
+
 	vector<Vec2i> ppLinePairs, prLinePairs, leLinePairs; vector<Vec4i> aeLinePairs;
 	line_perpendicular_check(lines, ppLinePairs, prLinePairs, leLinePairs, aeLinePairs);
+	equationGenerate(circles,lines,points,ppLinePairs,prLinePairs,leLinePairs,aeLinePairs);
 	getchar();
 	return 0;
 }
