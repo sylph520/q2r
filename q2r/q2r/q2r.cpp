@@ -14,6 +14,13 @@ struct imgInfo
 	int lineNum;
 	vector<Vec4i> lines;
 };
+struct relationInfo
+{
+	string str;
+	vector<string> entities;
+	vector<char> points;
+	string tEquation;
+};
 struct angleInfo
 {
 	int l1, l2;
@@ -95,6 +102,7 @@ string angeqLine2String(Vec4i aeLinePair, vector<lineX> lines, vector<pointX> po
 	ret += 
 	ret += eq;
 	ret += "theta2";
+	return ret;
 
 }
 void readResultFile(char* fileName, vector<imgInfo> &imgInfos)
@@ -538,13 +546,13 @@ void equationGenerate(vector<circleX> &circles,vector<lineX> &lines, vector<poin
 		LineEquations.push_back(e);
 	}
 	// angle relation
-	for (int n = 0; n < aeLinePairs.size(); ++n)
-	{
-		Vec4i aeLinePair = aeLinePairs[n];
-		string e = angeqLine2String(aeLinePair, lines, points);
-		cout << e << endl;
-		angleEquations.push_back(e);
-	}
+	//for (int n = 0; n < aeLinePairs.size(); ++n)
+	//{
+	//	Vec4i aeLinePair = aeLinePairs[n];
+	//	string e = angeqLine2String(aeLinePair, lines, points);
+	//	cout << e << endl;
+	//	angleEquations.push_back(e);
+	//}
 
 
 }
@@ -570,21 +578,53 @@ void handleImgInfo(imgInfo imgif, vector<Vec2i>& imgifPoints, vector<circleX> &c
 	//cout << "imgif lines size " << imgif.lines.size() << endl;
 	point_on_circle_line_check(imgifPoints, imgif.circles, circles, imgif.lines, lines, points);
 }
+void findEnts(string str)
+{
+	int strSize = str.size();
+	for (int i = 0; i < strSize; ++i)
+	{
+		if (str[i])
+		for (int j = i; i < strSize; ++j)
+		{
+
+		}
+	}
+}
+void alignPointVar(vector<string> trs, vector<pointX> pts)
+{
+	for (int k = 0; k < trs.size(); ++k)
+	{
+		string str = trs[k];
+
+
+	}
+}
+void textRelation2Eq(vector<string> trs)
+{
+	// first find all the point elment and align a fixed variable to it
+	vector<pointX> pts;
+	alignPointVar(trs, pts);
+	/*then loop through all the relations extracted from text*/
+	//
+
+}
 int _tmain(int argc, _TCHAR* argv[])
 {
-	// first read the result file
-	char* fileName = "detectedResult.txt";
-	vector<imgInfo> imgInfos;
-	readResultFile(fileName, imgInfos);
-	imgInfo imgif = imgInfos[0];
-	vector<Vec2i> imgifPoints;
-	vector<circleX> circles; vector<lineX> lines; vector<pointX> points;
-	handleImgInfo(imgif, imgifPoints, circles, lines, points);
+	/*the image infos*/
+	//// first read the result file
+	//char* fileName = "detectedResult.txt";
+	//vector<imgInfo> imgInfos;
+	//readResultFile(fileName, imgInfos);
+	//imgInfo imgif = imgInfos[0];
+	//vector<Vec2i> imgifPoints;
+	//vector<circleX> circles; vector<lineX> lines; vector<pointX> points;
+	//handleImgInfo(imgif, imgifPoints, circles, lines, points);
 
-	vector<Vec2i> ppLinePairs, prLinePairs, leLinePairs; vector<Vec4i> aeLinePairs;
-	line_perpendicular_check(lines, ppLinePairs, prLinePairs, leLinePairs, aeLinePairs);
-	equationGenerate(circles,lines,points,ppLinePairs,prLinePairs,leLinePairs,aeLinePairs);
-	getchar();
+	//vector<Vec2i> ppLinePairs, prLinePairs, leLinePairs; vector<Vec4i> aeLinePairs;
+	//line_perpendicular_check(lines, ppLinePairs, prLinePairs, leLinePairs, aeLinePairs);
+	//equationGenerate(circles,lines,points,ppLinePairs,prLinePairs,leLinePairs,aeLinePairs);
+	//getchar();
+	/* the text information */
 	return 0;
 }
 
