@@ -6,7 +6,7 @@ struct pointX
 	int px, py;
 	vector<int> l_idx;
 	vector<int> c_idx;
-	string label = "";
+	char label = ' ';
 	string p[2] ;
 };
 struct lineX
@@ -17,6 +17,7 @@ struct lineX
 	double length;
 	string label = "";
 	string w[3];
+	string eq[2];
 };
 struct circleX
 {

@@ -11,6 +11,7 @@
 #include <tchar.h>
 #include <opencv.hpp>
 #include <string>
+#include <set>
 using namespace std;
 using namespace cv;
 

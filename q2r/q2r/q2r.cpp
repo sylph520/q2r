@@ -17,15 +17,34 @@ struct imgInfo
 struct relationInfo
 {
 	string str;
+	string relationStr;
 	vector<string> entities;
+	vector<vector<char>> entChar;
 	vector<char> points;
-	string tEquation;
+	vector<string> Equation;
 };
 struct angleInfo
 {
 	int l1, l2;
 	double angle;
 };
+
+void isLine(string p1_x, string p1_y, string p2_x, string p2_y, lineX &line)
+{
+	string eq1, eq2;
+	
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string mul = " * "; string eq = " = ";
+	
+	eq1 = line.w[0]; eq1 += mul; eq1 += p1_x; eq1 += plus;
+	eq1 += line.w[1]; eq1 += mul; eq1 += p1_y; eq1 += plus;
+	eq1 += line.w[2]; eq1 += eq; eq1 += "0";
+	
+	eq2 = line.w[0]; eq2 += mul; eq2 += p2_x; eq2 += plus;
+	eq2 += line.w[1]; eq2 += mul; eq2 += p2_y; eq2 += plus;
+	eq2 += line.w[2]; eq2 += eq; eq2 += "0";
+	
+	line.eq[0] = eq1; line.eq[1] = eq2;
+}
 string PtOnCircle2String(circleX circle, string pt[2])
 {
 	string ret = ""; 
@@ -39,6 +58,8 @@ string PtOnCircle2String(circleX circle, string pt[2])
 	//	'(' + pt[1] + " - " + to_string(circle.c[1]) + ')' + '^' + '2' + " = " + to_string(circle.radius*circle.radius);
 	return ret;
 }
+
+
 string PtOnLine2String(lineX line, string pt[2])
 {
 	string ret;
@@ -48,6 +69,14 @@ string PtOnLine2String(lineX line, string pt[2])
 	ret += line.w[2]; ret += eq; ret += "0";
 	return ret;
 }
+
+vector<string> PtOnLine2String(string p, string p1, string p2)
+{
+	string eq1, eq2, eq3;
+
+}
+
+
 string parallelLine2String(Vec2i prLinePair, vector<lineX> lines, vector<pointX> points)
 {
 	lineX line1, line2;
@@ -62,6 +91,20 @@ string parallelLine2String(Vec2i prLinePair, vector<lineX> lines, vector<pointX>
 	ret += "0";
 	return ret;
 }
+
+string parallelLine2String(string p1_x, string p1_y, string p2_x, string p2_y,
+	string p3_x, string p3_y, string p4_x, string p4_y)
+{
+	string ret= ""; 
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string mul = " * "; string eq = " = ";
+	ret += leftpa; ret += p4_y; ret += minus; ret += p3_y; ret += rightpa; ret += mul;
+	ret += leftpa; ret += p2_x; ret += minus; ret += p1_x; ret += rightpa; ret += minus;
+	ret += leftpa; ret += p4_x; ret += minus; ret += p3_x; ret += rightpa; ret += mul;
+	ret += leftpa; ret += p2_y; ret += minus; ret += p1_y; ret += rightpa; ret += eq;
+	ret += "0";
+	return ret;
+}
+
 string perpendicularLine2String(Vec2i ppLinePair, vector<lineX> lines, vector<pointX> points)
 {
 	lineX line1, line2;
@@ -76,6 +119,38 @@ string perpendicularLine2String(Vec2i ppLinePair, vector<lineX> lines, vector<po
 	ret += "0";
 	return ret;
 }
+
+string perpendicularLine2String(string p1_x, string p1_y, string p2_x, string p2_y,
+	string p3_x, string p3_y, string p4_x, string p4_y)
+{
+	string ret = "";
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string mul = " * "; string eq = " = ";
+	ret += leftpa; ret += p4_y; ret += minus; ret += p3_y; ret += rightpa; ret += mul;
+	ret += leftpa; ret += p2_y; ret += minus; ret += p1_y; ret += rightpa; ret += minus;
+	ret += leftpa; ret += p4_x; ret += minus; ret += p3_x; ret += rightpa; ret += mul;
+	ret += leftpa; ret += p2_x; ret += minus; ret += p1_x; ret += rightpa; ret += eq;
+	ret += "0";
+	return ret;
+}
+
+string leneqLine2String(string p1_x, string p1_y, string p2_x, string p2_y,
+	string p3_x, string p3_y, string p4_x, string p4_y)
+{
+	string ret = "";
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string square = "^2"; string eq = " = ";
+	ret += leftpa; ret += p2_x; ret += minus; ret += p1_x; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += p2_y; ret += minus; ret += p1_y; ret += rightpa; ret += square; ret += eq;
+	ret += leftpa; ret += p4_x; ret += minus; ret += p3_x; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += p4_y; ret += minus; ret += p3_y; ret += rightpa; ret += square;
+	return ret;
+}
+string leneqLine2String(string p1,string p2, string p3, string p4)// p1,p2,p3,p4 are the four points of two line
+{
+	string eq;
+
+	return eq;
+
+}
 string leneqLine2String(Vec2i leLinePair, vector<lineX> lines, vector<pointX> points)
 {
 	lineX line1, line2;
@@ -89,6 +164,7 @@ string leneqLine2String(Vec2i leLinePair, vector<lineX> lines, vector<pointX> po
 	ret += leftpa; ret += pt4.p[1]; ret += minus; ret += pt3.p[1]; ret += rightpa; ret += square;
 	return ret;
 }
+
 string angeqLine2String(Vec4i aeLinePair, vector<lineX> lines, vector<pointX> points)
 {
 	lineX line1, line2,line3, line4;
@@ -556,7 +632,136 @@ void equationGenerate(vector<circleX> &circles,vector<lineX> &lines, vector<poin
 
 
 }
+vector<char> ent2chars(string entStr)
+{
+	// extract corresponding chars from entities string
+	//for example entities "ABC" to be a vector Of "A", "B", "C";
+	vector<char> entChars;
+	for (int i = 0; i < entStr.size(); ++i)
+	{
+		char pchar = entStr[i];
+		entChars.push_back(pchar);
+	}
+	return entChars;
+}
 
+void findAxisInfo(char pointLabel, vector<pointX> pts, string *p)
+{
+	for (int i = 0; i < pts.size(); ++i)
+	{
+		pointX pt = pts[i];
+		if (pt.label == pointLabel)
+		{
+			p[0] = pt.p[0];
+			p[1] = pt.p[1];
+		}
+	}
+}
+void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo & relInfo)
+{
+	string rel = relInfo.relationStr;
+	if (rel == "Is_Eqtriangle")
+	{
+		//then the only entitiy must be a 3 character string
+		// and the edge will be equal
+		string eq1, eq2, eq3;// 3 equations
+		vector<char> pchars = ent2chars(relInfo.entities[0]);
+		string p1[2], p2[2], p3[2];
+		findAxisInfo(pchars[0], pts, p1);
+		findAxisInfo(pchars[1], pts, p2);
+		findAxisInfo(pchars[2], pts, p3);
+		eq1 = leneqLine2String(p1[0], p1[1], p2[0], p2[1], p1[0],p1[1],p3[0],p3[1]);
+		eq2 = leneqLine2String(p1[0], p1[1], p2[0], p2[1], p2[0],p2[1],p3[0],p3[1]);
+		eq3 = leneqLine2String(p3[0], p3[1], p2[0], p2[1], p1[0],p1[1],p3[0],p3[1]);
+		//cout << eq1 << endl;
+		relInfo.Equation.push_back(eq1);
+		relInfo.Equation.push_back(eq2);
+		relInfo.Equation.push_back(eq3);
+	}
+	else if (rel == "IsParallellogram")
+	{
+		// the only entity must be a 4 character string
+		string eq1, eq2, eq3, eq4;// two pairs of parallel lines(discirminator) and two pairs of equal line
+		vector<char> pchars = ent2chars(relInfo.entities[0]);
+		string p1[2], p2[2], p3[2], p4[2];
+		findAxisInfo(pchars[0], pts, p1);
+		findAxisInfo(pchars[1], pts, p2);
+		findAxisInfo(pchars[2], pts, p3);
+		findAxisInfo(pchars[3], pts, p4);
+		eq1 = parallelLine2String(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
+		eq2 = parallelLine2String(p1[0], p1[1], p4[0], p4[1], p3[0], p3[1], p2[0], p2[1]);
+		//eq3 = leneqLine2String(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
+		//eq4 = leneqLine2String(p1[0], p1[1], p4[0], p4[1], p3[0], p3[1], p2[0], p2[1]);
+		relInfo.Equation.push_back(eq1);
+		relInfo.Equation.push_back(eq2);
+		//relInfo.Equation.push_back(eq3);
+		//relInfo.Equation.push_back(eq4);
+	}
+	else if (rel == "IsRectangle")
+	{
+
+		// the only entity must be a 4 character string
+		// parallellogram with a pair of perpendicular lines
+		string eq1, eq2, eq3;
+		vector<char> pchars = ent2chars(relInfo.entities[0]);
+		string p1[2], p2[2], p3[2], p4[2];
+		findAxisInfo(pchars[0], pts, p1);
+		findAxisInfo(pchars[1], pts, p2);
+		findAxisInfo(pchars[2], pts, p3);
+		findAxisInfo(pchars[3], pts, p4);
+		eq1 = parallelLine2String(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
+		eq2 = parallelLine2String(p1[0], p1[1], p4[0], p4[1], p3[0], p3[1], p2[0], p2[1]);
+		eq3 = perpendicularLine2String(p1[0], p1[1], p2[0], p2[1], p2[0], p2[1], p3[0], p3[1]);
+		relInfo.Equation.push_back(eq1);
+		relInfo.Equation.push_back(eq2);
+		relInfo.Equation.push_back(eq3);
+	}
+	else if (rel == "IsSquare")
+	{
+		//rectangle with adjoint line of equivalent length
+		string eq1, eq2, eq3, eq4;
+		vector<char> pchars = ent2chars(relInfo.entities[0]);
+		string p1[2], p2[2], p3[2], p4[2];
+		findAxisInfo(pchars[0], pts, p1);
+		findAxisInfo(pchars[1], pts, p2);
+		findAxisInfo(pchars[2], pts, p3);
+		findAxisInfo(pchars[3], pts, p4);
+		eq1 = parallelLine2String(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
+		eq2 = parallelLine2String(p1[0], p1[1], p4[0], p4[1], p3[0], p3[1], p2[0], p2[1]);
+		eq3 = perpendicularLine2String(p1[0], p1[1], p2[0], p2[1], p2[0], p2[1], p3[0], p3[1]);
+		eq4 = leneqLine2String(p1[0], p1[1], p2[0], p2[1], p2[0], p2[1], p3[0], p3[1]);
+		relInfo.Equation.push_back(eq1);
+		relInfo.Equation.push_back(eq2);
+		relInfo.Equation.push_back(eq3);
+		relInfo.Equation.push_back(eq4);
+	}
+	else if (rel == "IsMidPointOf")
+	{
+		// two entities ,the first to be a point , the second to be a line
+		// for example ,IsMidpointOf(D,AB), D is on AB and AD=BD
+		string eq1, eq2, eq3;
+		vector<char> pchars = ent2chars(relInfo.entities[1]);
+		string p[2], p1[1], p2[2];
+		findAxisInfo(relInfo.entities[0][0], pts,p);
+		findAxisInfo(pchars[0], pts, p1);
+		findAxisInfo(pchars[1], pts, p2);
+		lineX line;
+		for (int i = 0; i < ls.size(); ++i)
+		{
+			if (lLEqual_s(relInfo.entities[1], ls[i].label))
+				line = ls[i];
+		}
+		isLine(p1[0], p1[1], p2[0], p2[1], line);
+		eq3 = PtOnLine2String(line, p);
+		eq1 = line.eq[0];
+		eq2 = line.eq[1];
+		relInfo.Equation.push_back(eq1);
+		relInfo.Equation.push_back(eq2);
+		relInfo.Equation.push_back(eq3);
+
+	}
+
+}
 void handleImgInfo(imgInfo imgif, vector<Vec2i>& imgifPoints, vector<circleX> &circles, vector<lineX>& lines, vector<pointX>& points)
 {
 	for (int i = 0; i < imgif.lineNum; i++)
@@ -578,34 +783,147 @@ void handleImgInfo(imgInfo imgif, vector<Vec2i>& imgifPoints, vector<circleX> &c
 	//cout << "imgif lines size " << imgif.lines.size() << endl;
 	point_on_circle_line_check(imgifPoints, imgif.circles, circles, imgif.lines, lines, points);
 }
-void findEnts(string str)
+void analyseStr(string str, vector<pointX>& pts, vector<relationInfo> &relInfos)
 {
-	int strSize = str.size();
+	int strSize = str.size(); bool endFlag = false; bool entFlag = false; int entBIdx;
+	relationInfo relInfo; string rel;
+	relInfo.str = str;
 	for (int i = 0; i < strSize; ++i)
 	{
-		if (str[i])
-		for (int j = i; i < strSize; ++j)
+		if (str[i] == '('&&!endFlag)
 		{
-
+			entFlag = true; 
+			if (!isspace(str[i + 1]))
+				entBIdx = i + 1;
+			else
+				entBIdx = i + 2;
+			rel = str.substr(0, i);
+			relInfo.relationStr = rel;
+			for (int j = i+1; j < strSize; ++j)
+			{
+				if (str[j] == ')')
+				{
+					endFlag = true;
+					entFlag = false;
+					int entEIdx = j;
+					string toaddent = str.substr(entBIdx,entEIdx - entBIdx);
+					relInfo.entities.push_back(toaddent);
+				}
+				else if (str[j] == ',')
+				{
+					if (entFlag)
+					{
+						int entEIdx = j;
+						relInfo.entities.push_back(str.substr(entBIdx, entEIdx - entBIdx));
+						if (!isspace(str[j + 1]))
+							entBIdx = j + 1;
+						else
+							entBIdx = j + 2;
+					}
+					continue;
+				}
+				else if (!isspace(str[j]))
+				{
+					pointX p;
+					p.label = str[j];
+					pts.push_back(p);
+				}
+			}
 		}
 	}
+	relInfos.push_back(relInfo);
 }
-void alignPointVar(vector<string> trs, vector<pointX> pts)
+bool pLEqual(pointX pt1, pointX pt2)
 {
+	if (pt1.label == pt2.label)
+		return true;
+	else
+		return false;
+}
+
+
+void alignPointVar(vector<string> trs, vector<pointX> &pts, vector<relationInfo> &relInfos)
+{
+	// first loop through all text relations to store all label variables
+	cout << "test begin" << endl;
 	for (int k = 0; k < trs.size(); ++k)
 	{
 		string str = trs[k];
+		analyseStr(str, pts, relInfos);
+	}
+	// eliminate the duplicate labels
+	sort(pts.begin(), pts.end(), [](pointX pt1, pointX pt2){ return pt1.label < pt2.label; });
+	pts.erase(unique(pts.begin(), pts.end(),pLEqual),pts.end());
+
+	for (int m = 0; m < pts.size(); ++m)
+	{
+		//cout << pts[m].label << endl;
+		char suffix = '0' + m;
+		pts[m].p[0] = "p_x"; pts[m].p[0] += suffix;
+		pts[m].p[1] = "p_y"; pts[m].p[1] += suffix;
+	}
+	cout << "test end" << endl;
+}
+bool lLEqual(lineX l1, lineX l2)
+{
+	if (l1.label == l2.label)
+		return true;
+	else
+		return false;
+}
+bool lLEqual_s(string a, string b)
+{
+	if (a[0] == b[0] && a[1] == b[1])
+		return true;
+	else if (a[0] == b[1] && a[1] == b[1])
+		return true;
+	else
+		return false;
+}
+void alignLineEq(vector<relationInfo> relInfos, vector<pointX> pts, vector<lineX> &ls)
+{
+	for (int i = 0; i < relInfos.size(); ++i)
+	{
+		relationInfo relInfo = relInfos[i];
+		for (int j = 0; j < relInfo.entities.size(); ++j)
+		{
+			string relEnt = relInfo.entities[j];
+			if (relEnt.size() == 2)
+			{
+				lineX l;
+				l.label = relEnt;
+				ls.push_back(l);
+				//vector<char> pchars = ent2chars(relEnt);
+				//string p1[2], p2[2];
 
 
+			}
+
+		}
+	}
+	sort(ls.begin(), ls.end(), [](lineX l1, lineX l2){ return (l1.label == l2.label); });
+	ls.erase(unique(ls.begin(), ls.end(), lLEqual), ls.end());
+	for (int k = 0; k < ls.size(); ++k)
+	{
+		char suffix = '0' + k;
+		ls[k].w[0] = 'A'; ls[k].w[0] += suffix;
+		ls[k].w[1] = 'B'; ls[k].w[1] += suffix;
+		ls[k].w[2] = 'C'; ls[k].w[2] += suffix;
 	}
 }
-void textRelation2Eq(vector<string> trs)
+void textRelation2Eq(vector<string> trs, vector<relationInfo> &relInfos)
 {
 	// first find all the point elment and align a fixed variable to it
-	vector<pointX> pts;
-	alignPointVar(trs, pts);
-	/*then loop through all the relations extracted from text*/
+	vector<pointX> pts; vector<lineX> ls;
+	alignPointVar(trs, pts, relInfos);
+	alignLineEq(relInfos, pts, ls);
+	/*then loop through all the relations which is extracted from text*/
 	//
+	for (int i = 0; i < relInfos.size(); ++i)
+	{
+		relationInfo relInfo = relInfos[i];
+		singleEquationGenerate(pts,ls,relInfo);
+	}
 
 }
 int _tmain(int argc, _TCHAR* argv[])
@@ -625,6 +943,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	//equationGenerate(circles,lines,points,ppLinePairs,prLinePairs,leLinePairs,aeLinePairs);
 	//getchar();
 	/* the text information */
+	///////////////////test tr2e instances///////////////////
+	vector<string> test = { "Is_Eqtriangle(ABE)", "Perpendicular(AB, CD)","colinear(EF,HG, IJ)" };
+	vector<relationInfo> relInfos;
+	textRelation2Eq(test, relInfos);
+	getchar();
 	return 0;
 }
 
