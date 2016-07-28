@@ -735,10 +735,10 @@ void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo &
 		relInfo.Equation.push_back(eq3);
 		relInfo.Equation.push_back(eq4);
 	}
-	else if (rel == "IsMidPointOf")
+	else if (rel == "PointsLieOnLine")
 	{
 		// two entities ,the first to be a point , the second to be a line
-		// for example ,IsMidpointOf(D,AB), D is on AB and AD=BD
+		// for example ,PointsLieOnLine(D,AB), D is on AB
 		string eq1, eq2, eq3;
 		vector<char> pchars = ent2chars(relInfo.entities[1]);
 		string p[2], p1[1], p2[2];
@@ -758,7 +758,95 @@ void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo &
 		relInfo.Equation.push_back(eq1);
 		relInfo.Equation.push_back(eq2);
 		relInfo.Equation.push_back(eq3);
+	}
+	else if (rel == "IsMidPointOf")
+	{
+		// two entities ,the first to be a point , the second to be a line
+		// for example ,IsMidpointOf(D,AB), D is on AB and AD=BD
+		string eq1, eq2, eq3, eq4;
+		vector<char> pchars = ent2chars(relInfo.entities[1]);
+		string p[2], p1[1], p2[2];
+		findAxisInfo(relInfo.entities[0][0], pts,p);
+		findAxisInfo(pchars[0], pts, p1);
+		findAxisInfo(pchars[1], pts, p2);
+		lineX line;
+		for (int i = 0; i < ls.size(); ++i)
+		{
+			if (lLEqual_s(relInfo.entities[1], ls[i].label))
+				line = ls[i];
+		}
+		isLine(p1[0], p1[1], p2[0], p2[1], line);
+		eq3 = PtOnLine2String(line, p);
+		eq1 = line.eq[0];
+		eq2 = line.eq[1];
+		eq4 = leneqLine2String(p[0], p[1], p1[0], p1[1], p[0], p[1], p2[0], p2[1]);
+		relInfo.Equation.push_back(eq1);
+		relInfo.Equation.push_back(eq2);
+		relInfo.Equation.push_back(eq3);
+		relInfo.Equation.push_back(eq4);
 
+	}
+	else if (rel == "EqualsDistance")
+	{
+		// two entities by two character long string
+		string eq;
+		vector<char> pchars1 = ent2chars(relInfo.entities[0]);
+		vector<char> pchars2 = ent2chars(relInfo.entities[1]); 
+		string p1[2], p2[2], p3[2], p4[2];
+		findAxisInfo(pchars1[0], pts, p1);
+		findAxisInfo(pchars1[1], pts, p2);
+		findAxisInfo(pchars2[0], pts, p3);
+		findAxisInfo(pchars2[1], pts, p4);
+		eq = leneqLine2String(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
+		relInfo.Equation.push_back(eq);
+	}
+	else if (rel == "EqualsAngle")
+	{
+		cout << "to be continued" << endl;
+	}
+	else if (rel == "Perpendicular")
+	{
+		// two entities by two character long string
+		string eq;
+		vector<char> pchars1 = ent2chars(relInfo.entities[0]);
+		vector<char> pchars2 = ent2chars(relInfo.entities[1]); 
+		string p1[2], p2[2], p3[2], p4[2];
+		findAxisInfo(pchars1[0], pts, p1);
+		findAxisInfo(pchars1[1], pts, p2);
+		findAxisInfo(pchars2[0], pts, p3);
+		findAxisInfo(pchars2[1], pts, p4);
+		eq = perpendicularLine2String(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
+		relInfo.Equation.push_back(eq);
+	}
+	else if (rel == "Parallel")
+	{
+		// two entities by two character long string
+		string eq;
+		vector<char> pchars1 = ent2chars(relInfo.entities[0]);
+		vector<char> pchars2 = ent2chars(relInfo.entities[1]); 
+		string p1[2], p2[2], p3[2], p4[2];
+		findAxisInfo(pchars1[0], pts, p1);
+		findAxisInfo(pchars1[1], pts, p2);
+		findAxisInfo(pchars2[0], pts, p3);
+		findAxisInfo(pchars2[1], pts, p4);
+		eq = parallelLine2String(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
+		relInfo.Equation.push_back(eq);
+	}
+	else if (rel == "BisectAngle")
+	{
+		cout << "to be continued" << endl;
+	}
+	else if (rel == "IsAltitudeOf")
+	{
+		cout << "to be continued" << endl;
+	}
+	else if (rel == "IsHypotenuseOf")
+	{
+		cout << "to be continued" << endl;
+	}
+	else if (rel == "PointsLiesOnCircle")
+	{
+		cout << "to be continued" << endl;
 	}
 
 }
@@ -923,6 +1011,7 @@ void textRelation2Eq(vector<string> trs, vector<relationInfo> &relInfos)
 	{
 		relationInfo relInfo = relInfos[i];
 		singleEquationGenerate(pts,ls,relInfo);
+
 	}
 
 }
