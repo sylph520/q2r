@@ -28,7 +28,35 @@ struct angleInfo
 	int l1, l2;
 	double angle;
 };
-
+bool lLEqual(lineX l1, lineX l2)
+{
+	if (l1.label == l2.label)
+		return true;
+	else
+		return false;
+}
+bool lLEqual_s(string a, string b)
+{
+	if (a[0] == b[0] && a[1] == b[1])
+		return true;
+	else if (a[0] == b[1] && a[1] == b[1])
+		return true;
+	else
+		return false;
+}
+string pyt(string p1_x, string p1_y, string p2_x, string p2_y,
+	string p3_x, string p3_y)// 勾股定理, 第一个点是直角点
+{
+	string ret = "";
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string square = "^2"; string eq = " = ";
+	ret += leftpa; ret += p2_x; ret += minus; ret += p1_x; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += p2_y; ret += minus; ret += p1_y; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += p3_x; ret += minus; ret += p1_x; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += p3_y; ret += minus; ret += p1_y; ret += rightpa; ret += square; ret += eq;
+	ret += leftpa; ret += p3_x; ret += minus; ret += p2_x; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += p3_y; ret += minus; ret += p2_y; ret += rightpa;
+	return ret;
+}
 void isLine(string p1_x, string p1_y, string p2_x, string p2_y, lineX &line)
 {
 	string eq1, eq2;
@@ -70,11 +98,7 @@ string PtOnLine2String(lineX line, string pt[2])
 	return ret;
 }
 
-vector<string> PtOnLine2String(string p, string p1, string p2)
-{
-	string eq1, eq2, eq3;
 
-}
 
 
 string parallelLine2String(Vec2i prLinePair, vector<lineX> lines, vector<pointX> points)
@@ -144,13 +168,7 @@ string leneqLine2String(string p1_x, string p1_y, string p2_x, string p2_y,
 	ret += leftpa; ret += p4_y; ret += minus; ret += p3_y; ret += rightpa; ret += square;
 	return ret;
 }
-string leneqLine2String(string p1,string p2, string p3, string p4)// p1,p2,p3,p4 are the four points of two line
-{
-	string eq;
 
-	return eq;
-
-}
 string leneqLine2String(Vec2i leLinePair, vector<lineX> lines, vector<pointX> points)
 {
 	lineX line1, line2;
@@ -678,10 +696,10 @@ void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo &
 		relInfo.Equation.push_back(eq2);
 		relInfo.Equation.push_back(eq3);
 	}
-	else if (rel == "IsParallellogram")
+	else if (rel == "IsParallelogram")
 	{
 		// the only entity must be a 4 character string
-		string eq1, eq2, eq3, eq4;// two pairs of parallel lines(discirminator) and two pairs of equal line
+		string eq1, eq2;// two pairs of parallel lines(discirminator) and two pairs of equal line
 		vector<char> pchars = ent2chars(relInfo.entities[0]);
 		string p1[2], p2[2], p3[2], p4[2];
 		findAxisInfo(pchars[0], pts, p1);
@@ -834,14 +852,82 @@ void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo &
 	}
 	else if (rel == "BisectAngle")
 	{
+		//BisectsAngle(BD,ABC) -> angle(abd) = angle(cbd)
+
 		cout << "to be continued" << endl;
 	}
 	else if (rel == "IsAltitudeOf")
 	{
+		// 高 ex: IsAltitudeOf(AD,ABC) -> ad 垂直 bc, d is on bc
+		string eq;
+		vector<char> pchars1 = ent2chars(relInfo.entities[0]);
+		vector<char> pchars2 = ent2chars(relInfo.entities[1]);
+		string p1[2], p2[2], p3[2], p4[2];//pt4 for d, p5 for a duplicate A
+		findAxisInfo(pchars2[0], pts, p1);
+		findAxisInfo(pchars2[1], pts, p2);
+		findAxisInfo(pchars2[2], pts, p3);
+		string p[3][2] = { p1[0], p1[1], p2[0], p2[1], p3[0], p3[1] };
+		vector<char>::iterator iter1 = find(pchars2.begin(), pchars2.end(), pchars1[0]);
+		int nonDupIdx1 = (iter1 != pchars2.end()) ? 1 : 0;
+		int dupIdx1 = (iter1 == pchars2.end()) ? 1 : 0;
+		int nonDupIdx2[2] = { -1, -1 }; int dupIdx2 = -1; int count = 0;
+		findAxisInfo(pchars1[nonDupIdx1], pts, p4);
+		//if (iter1 != pchars2.end())
+		//{
+		//	findAxisInfo(pchars1[1], pts, p4);
+		//}
+		//else
+		//{
+		//	findAxisInfo(pchars1[0], pts, p4);
+		//}
+		
+		vector<char>::iterator iter2 = find(pchars2.begin(), pchars2.end(), pchars1[nonDupIdx1]);
+		for (vector<char>::iterator iter3 = pchars2.begin(); iter3 != pchars2.end(); ++iter3)
+		{
+			if (iter3 != iter2)
+			{
+				nonDupIdx2[count++] = iter3 - pchars2.begin();
+			}
+			else
+			{
+				dupIdx2 = iter3 - pchars2.begin();
+			}
+		}
+		perpendicularLine2String(p4[0], p4[1], p[dupIdx2][0],p[dupIdx2][1],p[nonDupIdx2[0]][0],p[nonDupIdx2[0]][1] ,p[nonDupIdx2[1]][0],p[nonDupIdx2[1]][1]);
+		lineX line;
+		isLine(p[nonDupIdx2[0]][0], p[nonDupIdx2[0]][1], p[nonDupIdx2[1]][0], p[nonDupIdx2[1]][1], line);
+		eq = PtOnLine2String(line, p4);
+
 		cout << "to be continued" << endl;
 	}
 	else if (rel == "IsHypotenuseOf")
 	{
+		//斜边 ex:IsHypotenuseOf(AB,ABC) -> ac垂直bc  ac^2+bc^2=ab^2
+		string eq1, eq2;
+		string p1[2], p2[2], p3[2];
+
+		vector<char> pchars1 = ent2chars(relInfo.entities[0]);
+		vector<char> pchars2 = ent2chars(relInfo.entities[1]); 
+		findAxisInfo(pchars1[0], pts, p1);
+		findAxisInfo(pchars1[1], pts, p2);
+		string p[2][2] = { p1[0], p1[1], p2[0], p2[1] };
+		int dupIdx[2] = { -1, -1 }; int nonDupIdx; int count = 0; 
+		for (int i = 0; i < pchars2.size(); ++i)
+		{
+			vector<char>::iterator iter = find(pchars1.begin(), pchars1.end(), pchars2[i]);                     
+			if (iter != pchars1.end())
+			{
+				dupIdx[count++] = i; 
+			}
+			else
+			{
+				nonDupIdx = i;
+			}
+		}
+		findAxisInfo(pchars2[nonDupIdx], pts, p3);
+		
+		eq1= perpendicularLine2String(p3[0], p3[1], p1[0], p1[1], p3[0], p3[1], p2[0], p2[1]);
+		eq2 = pyt(p3[0], p3[1], p1[0], p1[1], p2[0], p2[1]);
 		cout << "to be continued" << endl;
 	}
 	else if (rel == "PointsLiesOnCircle")
@@ -885,7 +971,10 @@ void analyseStr(string str, vector<pointX>& pts, vector<relationInfo> &relInfos)
 				entBIdx = i + 1;
 			else
 				entBIdx = i + 2;
-			rel = str.substr(0, i);
+			if (!isspace(str[i - 1]))
+				rel = str.substr(0, i);
+			else
+				rel = str.substr(0, i - 1);
 			relInfo.relationStr = rel;
 			for (int j = i+1; j < strSize; ++j)
 			{
@@ -952,22 +1041,7 @@ void alignPointVar(vector<string> trs, vector<pointX> &pts, vector<relationInfo>
 	}
 	cout << "test end" << endl;
 }
-bool lLEqual(lineX l1, lineX l2)
-{
-	if (l1.label == l2.label)
-		return true;
-	else
-		return false;
-}
-bool lLEqual_s(string a, string b)
-{
-	if (a[0] == b[0] && a[1] == b[1])
-		return true;
-	else if (a[0] == b[1] && a[1] == b[1])
-		return true;
-	else
-		return false;
-}
+
 void alignLineEq(vector<relationInfo> relInfos, vector<pointX> pts, vector<lineX> &ls)
 {
 	for (int i = 0; i < relInfos.size(); ++i)
@@ -1009,9 +1083,7 @@ void textRelation2Eq(vector<string> trs, vector<relationInfo> &relInfos)
 	//
 	for (int i = 0; i < relInfos.size(); ++i)
 	{
-		relationInfo relInfo = relInfos[i];
-		singleEquationGenerate(pts,ls,relInfo);
-
+		singleEquationGenerate(pts,ls,relInfos[i]);
 	}
 
 }
@@ -1033,9 +1105,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	//getchar();
 	/* the text information */
 	///////////////////test tr2e instances///////////////////
-	vector<string> test = { "Is_Eqtriangle(ABE)", "Perpendicular(AB, CD)","colinear(EF,HG, IJ)" };
+	vector<string> test = { "IsRectangle(ABCD)"};
 	vector<relationInfo> relInfos;
 	textRelation2Eq(test, relInfos);
+
+	for (int i = 0; i < relInfos[0].Equation.size(); ++i)
+	{
+		cout << relInfos[0].Equation[i] << endl;
+	}
 	getchar();
 	return 0;
 }
