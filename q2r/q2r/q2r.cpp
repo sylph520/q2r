@@ -28,6 +28,7 @@ struct angleInfo
 	int l1, l2;
 	double angle;
 };
+
 bool lLEqual(lineX l1, lineX l2)
 {
 	if (l1.label == l2.label)
@@ -44,6 +45,7 @@ bool lLEqual_s(string a, string b)
 	else
 		return false;
 }
+
 string pyt(string p1_x, string p1_y, string p2_x, string p2_y,
 	string p3_x, string p3_y)// 勾股定理, 第一个点是直角点
 {
@@ -59,6 +61,7 @@ string pyt(string p1_x, string p1_y, string p2_x, string p2_y,
 	//cout << ret << endl;
 	return ret;
 }
+
 void isLine(string p1_x, string p1_y, string p2_x, string p2_y, lineX &line)
 {
 	string eq1, eq2;
@@ -75,6 +78,7 @@ void isLine(string p1_x, string p1_y, string p2_x, string p2_y, lineX &line)
 	
 	line.eq[0] = eq1; line.eq[1] = eq2;
 }
+
 string PtOnCircle2String(circleX circle, string pt[2])
 {
 	string ret = ""; 
@@ -191,7 +195,7 @@ string angeqLine2String(Vec4i aeLinePair, vector<lineX> lines, vector<pointX> po
 	line1 = lines[aeLinePair[0]]; line2 = lines[aeLinePair[1]]; line3 = lines[aeLinePair[2]]; line4 = lines[aeLinePair[3]];
 	pointX pt1 = points[line1.p_idx1]; pointX pt2 = points[line1.p_idx2]; pointX pt3 = points[line2.p_idx1]; pointX pt4 = points[line2.p_idx2];
 	pointX pt5 = points[line3.p_idx1]; pointX pt6 = points[line3.p_idx2]; pointX pt7 = points[line4.p_idx1]; pointX pt8 = points[line4.p_idx2];
-	string ret = "";
+	string ret = ""; char mul = '*';
 	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string square = "^2"; string eq = " = ";
 	char div = '/';
 	ret += "theta1";
@@ -201,6 +205,58 @@ string angeqLine2String(Vec4i aeLinePair, vector<lineX> lines, vector<pointX> po
 	return ret;
 
 }
+string angeqLine2String(string p1_x, string p1_y, string p2_x, string p2_y, string p3_x, string p3_y,
+	string p4_x, string p4_y, string p5_x, string p5_y, string p6_x, string p6_y)
+{
+	//arccos((p1_x - p2_x,p1_y-p2_y)***(p3_x-p2_x,p3_y-p2_y)/norm1_2*norm3_2)
+	// arccos((p4_x-p5_x,p4_y-p5_y)***(p6_x-p5_x,p6_y-p5_y)/norm4_5*norm6_5)
+	string ret="";
+	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string square = "^2"; string eq = " = "; char div = '/';
+	string arcc = "arccos"; char douhao = ','; char mul = '*'; string sqrt = "sqrt"; string  xmul = "***";
+	ret += arcc; ret += '\n';
+	ret += leftpa;
+	ret += leftpa; ret += p1_x; ret += minus; ret += p2_x; ret += douhao; ret += p1_y; ret += minus; ret += p2_y; ret += rightpa; ret += xmul;
+	ret += leftpa; ret += p3_x; ret += minus; ret += p2_x; ret += douhao; ret += p3_y; ret += minus; ret += p2_y; ret += rightpa; ret += div;
+	ret += leftpa; 
+	ret += sqrt; 
+	ret += leftpa; 
+	ret += leftpa; ret += p1_x; ret += minus; ret += p2_x; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += p1_y; ret += minus; ret += p2_y; ret += rightpa; ret += square; 
+	ret += rightpa; 
+	ret += mul;
+	ret += sqrt; 
+	ret += leftpa; 
+	ret += leftpa; ret += p3_x; ret += minus; ret += p2_x; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += p3_y; ret += minus; ret += p2_y; ret += rightpa; ret += square; 
+	ret += rightpa; 
+	ret += rightpa;
+	ret += rightpa;
+	ret += '\n';
+	ret += eq;
+	ret += '\n';
+	ret += arcc; ret += '\n';
+	ret += leftpa;
+	ret += leftpa; ret += p4_x; ret += minus; ret += p5_x; ret += douhao; ret += p4_y; ret += minus; ret += p5_y; ret += rightpa; ret += xmul;
+	ret += leftpa; ret += p6_x; ret += minus; ret += p5_x; ret += douhao; ret += p6_y; ret += minus; ret += p5_y; ret += rightpa; ret += div;
+	ret += leftpa; 
+	ret += sqrt; 
+	ret += leftpa; 
+	ret += leftpa; ret += p4_x; ret += minus; ret += p5_x; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += p4_y; ret += minus; ret += p5_y; ret += rightpa; ret += square; 
+	ret += rightpa; 
+	ret += mul;
+	ret += sqrt; 
+	ret += leftpa; 
+	ret += leftpa; ret += p6_x; ret += minus; ret += p5_x; ret += rightpa; ret += square; ret += plus;
+	ret += leftpa; ret += p6_y; ret += minus; ret += p5_y; ret += rightpa; ret += square; 
+	ret += rightpa; 
+	ret += rightpa;
+	ret += rightpa;
+
+	return ret;
+
+}
+
 void readResultFile(char* fileName, vector<imgInfo> &imgInfos)
 {
 	ifstream file(fileName, ios::in || ios::binary);
@@ -315,12 +371,14 @@ void readResultFile(char* fileName, vector<imgInfo> &imgInfos)
 	}
 	cout << "end reading infos" << endl;
 }
+
 double p2pdistance(Vec2i pt1, Vec2i pt2)
 {
 	double distance;
 	distance = sqrt(powf((pt1[0] - pt2[0]), 2) + powf((pt1[1] - pt2[1]), 2));
 	return distance;
 }
+
 bool on_line(Vec4i line, Vec2i pt)
 {
 	double linedis_eps = 3; double pointdis_eps = 5;
@@ -334,6 +392,7 @@ bool on_line(Vec4i line, Vec2i pt)
 	else
 		return false;
 }
+
 bool on_circle(Vec2i pt, Vec3f circle)
 {
 	// check if the point pt is on one of the circles,or joints of multiple circles, or nothing to do with circles
@@ -350,6 +409,7 @@ bool on_circle(Vec2i pt, Vec3f circle)
 		return false;
 
 }
+
 void point_on_circle_line_check(vector<Vec2i> basicEndpoints, vector<Vec3f> circle_candidates, vector<circleX> &circles,
 	vector<Vec4i> line_candidates, vector<lineX> &lines, vector<pointX> &points)
 {
@@ -456,6 +516,7 @@ void point_on_circle_line_check(vector<Vec2i> basicEndpoints, vector<Vec3f> circ
 		cout << " is on circle " << circle.c_idx << endl;
 	}
 }
+
 double angleOfLines(Vec4i line1, Vec4i line2)
 {
 	Vec2i line1V = { line1[2] - line1[0], line1[3] - line1[1] }; Vec2i line2V = { line2[2] - line2[0], line2[3] - line2[1] };
@@ -465,6 +526,7 @@ double angleOfLines(Vec4i line1, Vec4i line2)
 	double angle = abs(theta1 - theta2) / CV_PI * 180;
 	return angle;
 }
+
 void line_perpendicular_check(vector<lineX> lines, vector<Vec2i> &ppLinePairs, vector<Vec2i> &prLinePairs, vector<Vec2i> &leLinePairs,vector<Vec4i> &aeLinePairs)
 {
 	vector<angleInfo> angleSets;
@@ -562,6 +624,7 @@ void line_perpendicular_check(vector<lineX> lines, vector<Vec2i> &ppLinePairs, v
 	//}
 	
 }
+
 void equationGenerate(vector<circleX> &circles,vector<lineX> &lines, vector<pointX> &points,
 	vector<Vec2i> ppLinePairs, vector<Vec2i> prLinePairs, vector<Vec2i> leLinePairs, vector<Vec4i> aeLinePairs)
 {
@@ -652,6 +715,7 @@ void equationGenerate(vector<circleX> &circles,vector<lineX> &lines, vector<poin
 
 
 }
+
 vector<char> ent2chars(string entStr)
 {
 	// extract corresponding chars from entities string
@@ -677,6 +741,7 @@ void findAxisInfo(char pointLabel, vector<pointX> pts, string *p)
 		}
 	}
 }
+
 void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo & relInfo)
 {
 	string rel = relInfo.relationStr;
@@ -822,6 +887,19 @@ void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo &
 	}
 	else if (rel == "EqualsAngle")
 	{
+		// two entities by 3 character long string
+		string eq;
+		vector<char> pchars1 = ent2chars(relInfo.entities[0]);
+		vector<char> pchars2 = ent2chars(relInfo.entities[1]); 
+		string p1[2], p2[2], p3[2], p4[2], p5[2], p6[2];
+		findAxisInfo(pchars1[0], pts, p1);
+		findAxisInfo(pchars1[1], pts, p2);
+		findAxisInfo(pchars1[2], pts, p3);
+		findAxisInfo(pchars2[0], pts, p4);
+		findAxisInfo(pchars2[1], pts, p5);
+		findAxisInfo(pchars2[2], pts, p6);
+		eq = angeqLine2String(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1], p5[0], p5[1], p6[0], p6[1]);
+		cout << eq << endl;
 		cout << "to be continued" << endl;
 	}
 	else if (rel == "Perpendicular")
@@ -939,6 +1017,7 @@ void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo &
 	}
 
 }
+
 void handleImgInfo(imgInfo imgif, vector<Vec2i>& imgifPoints, vector<circleX> &circles, vector<lineX>& lines, vector<pointX>& points)
 {
 	for (int i = 0; i < imgif.lineNum; i++)
@@ -960,6 +1039,7 @@ void handleImgInfo(imgInfo imgif, vector<Vec2i>& imgifPoints, vector<circleX> &c
 	//cout << "imgif lines size " << imgif.lines.size() << endl;
 	point_on_circle_line_check(imgifPoints, imgif.circles, circles, imgif.lines, lines, points);
 }
+
 void analyseStr(string str, vector<pointX>& pts, vector<relationInfo> &relInfos)
 {
 	int strSize = str.size(); bool endFlag = false; bool entFlag = false; int entBIdx;
@@ -1013,6 +1093,7 @@ void analyseStr(string str, vector<pointX>& pts, vector<relationInfo> &relInfos)
 	}
 	relInfos.push_back(relInfo);
 }
+
 bool pLEqual(pointX pt1, pointX pt2)
 {
 	if (pt1.label == pt2.label)
@@ -1076,6 +1157,7 @@ void alignLineEq(vector<relationInfo> relInfos, vector<pointX> pts, vector<lineX
 		ls[k].w[2] = 'C'; ls[k].w[2] += suffix;
 	}
 }
+
 void textRelation2Eq(vector<string> trs, vector<relationInfo> &relInfos)
 {
 	// first find all the point elment and align a fixed variable to it
@@ -1090,6 +1172,7 @@ void textRelation2Eq(vector<string> trs, vector<relationInfo> &relInfos)
 	}
 
 }
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	/*the image infos*/
@@ -1108,7 +1191,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//getchar();
 	/* the text information */
 	///////////////////test tr2e instances///////////////////
-	vector<string> test = { "IsHypotenuseOf(AB,ABC)"};
+	vector<string> test = { "EqualsAngle(DEF ,ABC)"};
 	vector<relationInfo> relInfos;
 	textRelation2Eq(test, relInfos);
 
