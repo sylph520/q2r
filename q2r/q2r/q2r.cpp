@@ -47,6 +47,7 @@ bool lLEqual_s(string a, string b)
 string pyt(string p1_x, string p1_y, string p2_x, string p2_y,
 	string p3_x, string p3_y)// 勾股定理, 第一个点是直角点
 {
+	
 	string ret = "";
 	char leftpa = '('; char rightpa = ')'; string minus = " - "; string plus = " + "; string square = "^2"; string eq = " = ";
 	ret += leftpa; ret += p2_x; ret += minus; ret += p1_x; ret += rightpa; ret += square; ret += plus;
@@ -55,6 +56,7 @@ string pyt(string p1_x, string p1_y, string p2_x, string p2_y,
 	ret += leftpa; ret += p3_y; ret += minus; ret += p1_y; ret += rightpa; ret += square; ret += eq;
 	ret += leftpa; ret += p3_x; ret += minus; ret += p2_x; ret += rightpa; ret += square; ret += plus;
 	ret += leftpa; ret += p3_y; ret += minus; ret += p2_y; ret += rightpa;
+	//cout << ret << endl;
 	return ret;
 }
 void isLine(string p1_x, string p1_y, string p2_x, string p2_y, lineX &line)
@@ -880,8 +882,8 @@ void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo &
 		//{
 		//	findAxisInfo(pchars1[0], pts, p4);
 		//}
-		
-		vector<char>::iterator iter2 = find(pchars2.begin(), pchars2.end(), pchars1[nonDupIdx1]);
+		cout << pchars1[nonDupIdx1] << endl;
+		vector<char>::iterator iter2 = find(pchars2.begin(), pchars2.end(), pchars1[dupIdx1]);
 		for (vector<char>::iterator iter3 = pchars2.begin(); iter3 != pchars2.end(); ++iter3)
 		{
 			if (iter3 != iter2)
@@ -893,12 +895,12 @@ void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo &
 				dupIdx2 = iter3 - pchars2.begin();
 			}
 		}
+
+		cout << pchars1[nonDupIdx1] << pchars2[dupIdx2] << " perpen " << pchars2[nonDupIdx2[0]] << pchars2[nonDupIdx2[1]] << endl;
 		perpendicularLine2String(p4[0], p4[1], p[dupIdx2][0],p[dupIdx2][1],p[nonDupIdx2[0]][0],p[nonDupIdx2[0]][1] ,p[nonDupIdx2[1]][0],p[nonDupIdx2[1]][1]);
 		lineX line;
 		isLine(p[nonDupIdx2[0]][0], p[nonDupIdx2[0]][1], p[nonDupIdx2[1]][0], p[nonDupIdx2[1]][1], line);
 		eq = PtOnLine2String(line, p4);
-
-		cout << "to be continued" << endl;
 	}
 	else if (rel == "IsHypotenuseOf")
 	{
@@ -925,6 +927,7 @@ void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo &
 			}
 		}
 		findAxisInfo(pchars2[nonDupIdx], pts, p3);
+		//cout << pchars2[nonDupIdx] << pchars1[0] << " perpen " << pchars2[nonDupIdx] << pchars1[1] << endl;
 		
 		eq1= perpendicularLine2String(p3[0], p3[1], p1[0], p1[1], p3[0], p3[1], p2[0], p2[1]);
 		eq2 = pyt(p3[0], p3[1], p1[0], p1[1], p2[0], p2[1]);
@@ -1105,7 +1108,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//getchar();
 	/* the text information */
 	///////////////////test tr2e instances///////////////////
-	vector<string> test = { "IsRectangle(ABCD)"};
+	vector<string> test = { "IsHypotenuseOf(AB,ABC)"};
 	vector<relationInfo> relInfos;
 	textRelation2Eq(test, relInfos);
 
