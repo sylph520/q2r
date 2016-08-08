@@ -933,7 +933,16 @@ void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo &
 	else if (rel == "BisectAngle")
 	{
 		//BisectsAngle(BD,ABC) -> angle(abd) = angle(cbd)
-
+		string eq;
+		vector<char> pchars1 = ent2chars(relInfo.entities[0]);
+		vector<char> pchars2 = ent2chars(relInfo.entities[1]);
+		string p1[2], p2[2], p3[2], p4[2];
+		findAxisInfo(pchars1[0], pts, p1);
+		findAxisInfo(pchars1[1], pts, p2);
+		findAxisInfo(pchars2[0], pts, p3);
+		findAxisInfo(pchars2[2], pts, p4);	
+		eq = angeqLine2String(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p1[0], p1[1], p2[0], p2[1], p4[0], p4[1]);
+		cout << eq << endl;
 		cout << "to be continued" << endl;
 	}
 	else if (rel == "IsAltitudeOf")
@@ -1013,6 +1022,8 @@ void singleEquationGenerate(vector<pointX> pts, vector<lineX> ls, relationInfo &
 	}
 	else if (rel == "PointsLiesOnCircle")
 	{
+		string eq;
+		//eq = PtOnCircle2String()
 		cout << "to be continued" << endl;
 	}
 
